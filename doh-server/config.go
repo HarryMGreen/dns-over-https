@@ -36,6 +36,7 @@ type config struct {
 	Cert                string   `toml:"cert"`
 	Key                 string   `toml:"key"`
 	Path                string   `toml:"path"`
+	BlockIPv6           bool     `toml:"block_ipv6"`
 	Upstream            []string `toml:"upstream"`
 	Timeout             uint     `toml:"timeout"`
 	Tries               uint     `toml:"tries"`

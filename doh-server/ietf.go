@@ -80,7 +80,7 @@ func (s *Server) parseRequestIETF(ctx context.Context, w http.ResponseWriter, r 
 		}
 	}
 
-	if s.conf.Verbose && len(msg.Question) > 0 {
+	if (s.conf.Verbose || s.conf.BlockIPv6) && len(msg.Question) > 0 {
 		question := &msg.Question[0]
 		questionName := question.Name
 		questionClass := ""
@@ -95,14 +95,26 @@ func (s *Server) parseRequestIETF(ctx context.Context, w http.ResponseWriter, r 
 		} else {
 			questionType = strconv.FormatUint(uint64(question.Qtype), 10)
 		}
-		var clientip net.IP = nil
-		if s.conf.LogGuessedIP {
-			clientip = s.findClientIP(r)
+		if s.conf.BlockIPv6 && questionType == "AAAA" {
+			if s.conf.Verbose {
+				fmt.Printf("Blocking type: %s \n", questionType)
+			}
+			return &DNSRequest{
+				errcode: 204,
+				errtext: "",
+			}
+
 		}
-		if clientip != nil {
-			fmt.Printf("%s - - [%s] \"%s %s %s\"\n", clientip, time.Now().Format("02/Jan/2006:15:04:05 -0700"), questionName, questionClass, questionType)
-		} else {
-			fmt.Printf("%s - - [%s] \"%s %s %s\"\n", r.RemoteAddr, time.Now().Format("02/Jan/2006:15:04:05 -0700"), questionName, questionClass, questionType)
+		if s.conf.Verbose {
+			var clientip net.IP = nil
+			if s.conf.LogGuessedIP {
+				clientip = s.findClientIP(r)
+			}
+			if clientip != nil {
+				fmt.Printf("%s - - [%s] \"%s %s %s\"\n", clientip, time.Now().Format("02/Jan/2006:15:04:05 -0700"), questionName, questionClass, questionType)
+			} else {
+				fmt.Printf("%s - - [%s] \"%s %s %s\"\n", r.RemoteAddr, time.Now().Format("02/Jan/2006:15:04:05 -0700"), questionName, questionClass, questionType)
+			}
 		}
 	}
 
