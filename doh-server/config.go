@@ -26,6 +26,8 @@ package main
 import (
 	"fmt"
 	"regexp"
+	"strings"
+	"syscall"
 
 	"github.com/BurntSushi/toml"
 )
@@ -61,6 +63,14 @@ func loadConfig(path string) (*config, error) {
 
 	if len(conf.Listen) == 0 {
 		conf.Listen = []string{"127.0.0.1:8053", "[::1]:8053"}
+	}
+
+	if v, ok := syscall.Getenv("PORT"); ok {
+		if len(conf.Listen) > 0 {
+			for index, l := range conf.Listen {
+				conf.Listen[index] = strings.ReplaceAll(l, "8053", v)
+			}
+		}
 	}
 
 	if conf.Path == "" {

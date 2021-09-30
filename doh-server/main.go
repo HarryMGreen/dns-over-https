@@ -70,7 +70,7 @@ retry:
 }
 
 func main() {
-	confPath := flag.String("conf", "doh-server.conf", "Configuration file")
+	confPath := flag.String("conf", "doh-server/doh-server.conf", "Configuration file")
 	verbose := flag.Bool("verbose", false, "Enable logging")
 	showVersion := flag.Bool("version", false, "Show software version and exit")
 	var pidFile *string
